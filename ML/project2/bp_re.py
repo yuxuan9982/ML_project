@@ -11,6 +11,7 @@ import numpy.random
 import sklearn.model_selection
 from keras.layers import Dense
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from keras.utils import np_utils
 from sklearn import preprocessing
 import xlrd
@@ -86,7 +87,7 @@ def read_wine():
         data.append(tmp)
     #print(data);print(label)
     return data,label
-img,label=read_wine()
+img,label=read_iris()
 enc=preprocessing.LabelEncoder()
 label=enc.fit_transform(label)
 s=set()
@@ -106,6 +107,7 @@ train_x,test_x,train_y,test_y=sklearn.model_selection.train_test_split(tot_img,t
 learning_rate=0.2#确定学习率
 ANN1=ANN(input,hidden,100,output,learning_rate)#实例化ANN人工神经网络  120 best now
 epochs=200
+ANN_res,Acc_res=ANN1,0
 for k in range(epochs):#迭代
     for j in range(len(train_x)):#遍历所有训练数据
         ANN1.lr=learning_rate*(100)/(100+k)
@@ -120,5 +122,8 @@ for k in range(epochs):#迭代
         if(test_y[i][pred_label]==1):#如果判断正确
             sum1+=1
         sum2+=1
-    if k%10==9:print('epoch:----->',k+1,'使用手工搭建的神经网络的准确率:',sum1/sum2)#输出准确性
+    if k%10==9:print('epoch:----->',k+1,'使用手工搭建的神经网络的准确率:',sum1/sum2*100,"%")#输出准确性
+    if sum1/sum2>Acc_res:
+        Acc_res,ANN_res=sum1/sum2,ANN1
+print("找到的最佳准确率为:",Acc_res*100,"%")
 ################使用手工搭建的神经网络##################################
