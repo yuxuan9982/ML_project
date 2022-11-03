@@ -14,6 +14,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 from keras.utils import np_utils
 from sklearn import preprocessing
+from sklearn.metrics import classification_report
 import xlrd
 def sigmoid(x):
     return scipy.special.expit(x)
@@ -60,34 +61,34 @@ class ANN:#人工神经网络
         final_outputs = self.activation(final_inputs)  # 得到输出层的输出
         return final_outputs  # 返回输出层的结果
 def read_iris():
-    with open("E:/desktop/3rdgrade-1/机器学习/IRIS/iris.csv", "r") as file:
-        reader = csv.reader(file)
-        lst = list(reader)
-        lst.pop(0)
+    with open("E:/desktop/3rdgrade-1/机器学习/IRIS/iris.csv", "r") as file:#打开CSV文件
+        reader = csv.reader(file)#读取
+        lst = list(reader)#获取list
+        lst.pop(0)#第一行不要
     data,label=[],[]
     for i in lst:
         for j in range(1, 5):
-            i[j] = float(i[j])
-        data.append(i[1:5])
-        label.append(i[5])
+            i[j] = float(i[j])#转换为浮点类型
+        data.append(i[1:5])#data增加
+        label.append(i[5])#tag增加
     return data,label
     # for i in lst:print(i)
 def read_wine():
     path= "E:/desktop/3rdgrade-1/机器学习/winequality_data.xlsx"
-    book = xlrd.open_workbook(path)
-    sheet1 = book.sheets()[0]
-    row,col=sheet1.nrows,sheet1.ncols
-    print(row,col)
+    book = xlrd.open_workbook(path)#获取xlsx文件
+    sheet1 = book.sheets()[0]#第一页
+    row,col=sheet1.nrows,sheet1.ncols#行数列数
+    #print(row,col)
     data,label=[],[]
     for i in range(1,row):
         tmp=[]
         for j in range(col-1):
-            tmp.append(sheet1.cell(i,j).value)
-        label.append(sheet1.cell(i,col-1).value)
-        data.append(tmp)
+            tmp.append(sheet1.cell(i,j).value)#获取到某行某列值
+        label.append(sheet1.cell(i,col-1).value)#标签更新
+        data.append(tmp)#数据更新
     #print(data);print(label)
     return data,label
-img,label=read_iris()
+img,label=read_wine()
 enc=preprocessing.LabelEncoder()
 label=enc.fit_transform(label)
 s=set()
@@ -126,4 +127,5 @@ for k in range(epochs):#迭代
     if sum1/sum2>Acc_res:
         Acc_res,ANN_res=sum1/sum2,ANN1
 print("找到的最佳准确率为:",Acc_res*100,"%")
+
 ################使用手工搭建的神经网络##################################

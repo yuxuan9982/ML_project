@@ -14,6 +14,7 @@ from keras.layers import Dense
 from sklearn.preprocessing import MinMaxScaler
 from keras.utils import np_utils
 from sklearn import preprocessing
+from sklearn.metrics import classification_report
 def sigmoid(x):
     return scipy.special.expit(x)
 def read_iris():
