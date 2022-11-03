@@ -103,12 +103,12 @@ tot=mmx.fit_transform(tot)#不归一化已经100了
 tot_img,tot_label=tot[:,:input],tot[:,input:]#归一化以后的数据和tag
 train_x,test_x,train_y,test_y=sklearn.model_selection.train_test_split(tot_img,tot_label,train_size=0.8)#抽取80%作为训练集
 ################使用手工搭建的神经网络##################################
-learning_rate=0.1#确定学习率
+learning_rate=0.2#确定学习率
 ANN1=ANN(input,hidden,100,output,learning_rate)#实例化ANN人工神经网络  120 best now
 epochs=200
 for k in range(epochs):#迭代
     for j in range(len(train_x)):#遍历所有训练数据
-        ANN1.lr=0.2*(100)/(100+k)
+        ANN1.lr=learning_rate*(100)/(100+k)
         ANN1.train(train_x[j],train_y[j].reshape(-1,1))#人工神经网络进行训练
     accuracy=0#计算准确性
     sum1,sum2=0,0
