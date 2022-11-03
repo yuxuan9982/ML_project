@@ -48,17 +48,15 @@ class ANN:#人工神经网络
         self.whh += self.lr * numpy.dot(hidden_dif2,hidden_outputs1.T).T
         self.wih += self.lr * numpy.dot(hidden_dif,train_x.T).T
 
-
-    def predict(self,img):#预测
-        img=np.matrix(img)
-        pred_x=img.reshape(-1,1)#输入数据格式标准化
-        hidden_inputs=numpy.dot(self.wih.T,pred_x)#得到隐藏层的输入
-        hidden_outputs=self.activation(hidden_inputs)#得到隐藏层的输出
-        hidden_input2=numpy.dot(self.whh.T,hidden_outputs)
-        hidden_outputs2=self.activation(hidden_input2)
-        final_inputs=numpy.dot(self.who.T,hidden_outputs2)#得到输出层的输入
-        final_outputs=self.activation(final_inputs)#得到输出层的输出
-        return final_outputs#返回输出层的结果
+    def predict(self, img):  # 预测
+        pred_x = img.reshape(-1, 1)  # 输入数据格式标准化
+        hidden_inputs = numpy.dot(self.wih.T, pred_x)  # 得到隐藏层的输入
+        hidden_outputs = self.activation(hidden_inputs)  # 得到隐藏层的输出
+        hidden_input2 = numpy.dot(self.whh.T, hidden_outputs)
+        hidden_outputs2 = self.activation(hidden_input2)
+        final_inputs = numpy.dot(self.who.T, hidden_outputs2)  # 得到输出层的输入
+        final_outputs = self.activation(final_inputs)  # 得到输出层的输出
+        return final_outputs  # 返回输出层的结果
 def read_iris():
     with open("E:/desktop/IRIS/iris.csv", "r") as file:
         reader = csv.reader(file)
@@ -79,33 +77,32 @@ label=enc.fit_transform(label)
 s=set()
 for i in label:s.add(i)
 input,hidden,output=len(img[0]),200,len(s)#设置输入层，隐藏层，输出层的神经元个数
-################使用手工搭建的神经网络##################################
-learning_rate=0.01#确定学习率
-ANN1=ANN(input,hidden,100,output,learning_rate)#实例化ANN人工神经网络
-epochs=7#迭代次数设置为3
-cnt=0
-for k in range(epochs):#迭代
-    cnt += 1#记录迭代次数
-    for j in range(len(img)):#遍历所有训练数据
-        target=np.zeros(3)+0.01#输出的处理
-        target[int(label[j])]=0.99
-        #print(train_y[j].reshape(-1,1))
-        ANN1.train(img[j],target.reshape(-1,1))#人工神经网络进行训练
-    print('epoch:----->',cnt)#输出迭代过程
+#print(test_img,test_img)
+mmx=MinMaxScaler()#输入数据归一化
+tot_img,tot_label=np.matrix(img),np.matrix(label)
+tot_label=tot_label.reshape(-1,1)#维度不对，应该设置为n行1列
+tot_label=np_utils.to_categorical(tot_label)
 
+tot=np.concatenate([tot_img,tot_label],axis=1)#把数据和标签按列拼接到一起
+tot=mmx.fit_transform(tot)#不归一化已经100了
+tot_img,tot_label=tot[:,:input],tot[:,input:]#归一化以后的数据和tag
+train_x,test_x,train_y,test_y=sklearn.model_selection.train_test_split(tot_img,tot_label,train_size=0.8)#抽取80%作为训练集
+################使用手工搭建的神经网络##################################
+learning_rate=0.1#确定学习率
+ANN1=ANN(input,hidden,100,output,learning_rate)#实例化ANN人工神经网络
+epochs=200
+for k in range(epochs):#迭代
+    for j in range(len(train_x)):#遍历所有训练数据
+        ANN1.train(train_x[j],train_y[j].reshape(-1,1))#人工神经网络进行训练
     accuracy=0#计算准确性
     sum1,sum2=0,0
-    for i in range(len(img)):#遍历预测数据
+    for i in range(len(test_x)):#遍历预测数据
         #wa_x=[]
-
-        outputs = ANN1.predict(img[i])#得到对应的输出
+        outputs = ANN1.predict(test_x[i])#得到对应的输出
         pred_label=numpy.argmax(outputs)#得到输出的值最大的位置，也就是判断结果
         #print(pred_label,test_label[i])
-        if(pred_label==label[i]):#如果判断正确
+        if(test_y[i][pred_label]==1):#如果判断正确
             sum1+=1
-        #else :
-            #wa_x.append(test_x)
         sum2+=1
-        #show_num(wa_x)
-    print('使用手工搭建的神经网络的准确率:',sum1/sum2)#输出准确性
+    if k%10==9:print('epoch:----->',k+1,'使用手工搭建的神经网络的准确率:',sum1/sum2)#输出准确性
 ################使用手工搭建的神经网络##################################

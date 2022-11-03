@@ -41,8 +41,6 @@ for i in label:s.add(i)
 input,hidden,output=len(img[0]),200,len(s)#设置输入层，隐藏层，输出层的神经元个数
 #print(test_img,test_img)
 mmx=MinMaxScaler()#输入数据归一化
-# tot_img=np.concatenate([train_img,test_img])#把train和test放到一起弄成一个总的tot
-# tot_label=np.concatenate([train_label,test_label])#把train和test放到一起弄成一个总的tot
 tot_img,tot_label=np.matrix(img),np.matrix(label)
 tot_label=tot_label.reshape(-1,1)#维度不对，应该设置为n行1列
 tot_label=np_utils.to_categorical(tot_label)
@@ -60,7 +58,7 @@ model.add(Dense(100,activation='sigmoid'))#第二层单元设置为100比较合�
 model.add(Dense(output,activation='softmax'))#输出结果
 model.compile(optimizer='adam',loss='categorical_crossentropy')#选择adam优化，损失函数选择二元交叉熵准确率会提升一些（大概1%左右吧）
 
-model.fit(train_x,train_y,batch_size=30,epochs=500)#进行训练，迭代20轮
+model.fit(train_x,train_y,batch_size=40,epochs=500)#进行训练，迭代20轮
 
 predict_y=model.predict(test_x)#预测test数据的结果
 sum1,sum2,acc=0,0,0
