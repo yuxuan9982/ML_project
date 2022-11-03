@@ -69,11 +69,11 @@ train_x,test_x,train_y,test_y=sklearn.model_selection.train_test_split(tot_img,t
 
 model=keras.models.Sequential()#创建sequential
 model.add(Dense(200,input_dim=input,activation='relu'))#第一层激活函数选择relu能提升很大的准确率
-model.add(Dense(200,activation='sigmoid'))#第二层单元设置为100比较合适，过大会导致过拟合，过小拟合效果不好
+model.add(Dense(100,activation='sigmoid'))#第二层单元设置为100比较合适，过大会导致过拟合，过小拟合效果不好
 model.add(Dense(output,activation='softmax'))#输出结果
 model.compile(optimizer='adam',loss='categorical_crossentropy')#选择adam优化，损失函数选择二元交叉熵准确率会提升一些（大概1%左右吧）
 
-model.fit(train_x,train_y,batch_size=80,epochs=500)#进行训练，迭代20轮
+model.fit(train_x,train_y,batch_size=20,epochs=500)#进行训练，迭代20轮 20best
 
 predict_y=model.predict(test_x)#预测test数据的结果
 sum1,sum2,acc=0,0,0
