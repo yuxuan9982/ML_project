@@ -13,6 +13,7 @@ from keras.layers import Dense
 from sklearn.preprocessing import MinMaxScaler
 from keras.utils import np_utils
 from sklearn import preprocessing
+import xlrd
 def sigmoid(x):
     return scipy.special.expit(x)
 class ANN:#人工神经网络
@@ -58,7 +59,7 @@ class ANN:#人工神经网络
         final_outputs = self.activation(final_inputs)  # 得到输出层的输出
         return final_outputs  # 返回输出层的结果
 def read_iris():
-    with open("E:/desktop/IRIS/iris.csv", "r") as file:
+    with open("E:/desktop/3rdgrade-1/机器学习/IRIS/iris.csv", "r") as file:
         reader = csv.reader(file)
         lst = list(reader)
         lst.pop(0)
@@ -70,8 +71,22 @@ def read_iris():
         label.append(i[5])
     return data,label
     # for i in lst:print(i)
-
-img,label=read_iris()
+def read_wine():
+    path= "E:/desktop/3rdgrade-1/机器学习/winequality_data.xlsx"
+    book = xlrd.open_workbook(path)
+    sheet1 = book.sheets()[0]
+    row,col=sheet1.nrows,sheet1.ncols
+    print(row,col)
+    data,label=[],[]
+    for i in range(1,row):
+        tmp=[]
+        for j in range(col-1):
+            tmp.append(sheet1.cell(i,j).value)
+        label.append(sheet1.cell(i,col-1).value)
+        data.append(tmp)
+    #print(data);print(label)
+    return data,label
+img,label=read_wine()
 enc=preprocessing.LabelEncoder()
 label=enc.fit_transform(label)
 s=set()
@@ -88,7 +103,7 @@ tot=mmx.fit_transform(tot)#不归一化已经100了
 tot_img,tot_label=tot[:,:input],tot[:,input:]#归一化以后的数据和tag
 train_x,test_x,train_y,test_y=sklearn.model_selection.train_test_split(tot_img,tot_label,train_size=0.8)#抽取80%作为训练集
 ################使用手工搭建的神经网络##################################
-learning_rate=0.1#确定学习率
+learning_rate=0.15#确定学习率
 ANN1=ANN(input,hidden,100,output,learning_rate)#实例化ANN人工神经网络
 epochs=200
 for k in range(epochs):#迭代

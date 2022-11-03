@@ -9,6 +9,7 @@ import scipy
 import matplotlib.pyplot as plt
 import numpy.random
 import sklearn.model_selection
+import xlrd
 from keras.layers import Dense
 from sklearn.preprocessing import MinMaxScaler
 from keras.utils import np_utils
@@ -28,8 +29,22 @@ def read_iris():
         label.append(i[5])
     return data,label
     # for i in lst:print(i)
-
-img,label=read_iris()
+def read_wine():
+    path= "E:/desktop/3rdgrade-1/机器学习/winequality_data.xlsx"
+    book = xlrd.open_workbook(path)
+    sheet1 = book.sheets()[0]
+    row,col=sheet1.nrows,sheet1.ncols
+    print(row,col)
+    data,label=[],[]
+    for i in range(1,row):
+        tmp=[]
+        for j in range(col-1):
+            tmp.append(sheet1.cell(i,j).value)
+        label.append(sheet1.cell(i,col-1).value)
+        data.append(tmp)
+    #print(data);print(label)
+    return data,label
+img,label=read_wine()
 enc=preprocessing.LabelEncoder()
 label=enc.fit_transform(label)
 #不同的标签种类数
@@ -54,11 +69,11 @@ train_x,test_x,train_y,test_y=sklearn.model_selection.train_test_split(tot_img,t
 
 model=keras.models.Sequential()#创建sequential
 model.add(Dense(200,input_dim=input,activation='relu'))#第一层激活函数选择relu能提升很大的准确率
-model.add(Dense(100,activation='sigmoid'))#第二层单元设置为100比较合适，过大会导致过拟合，过小拟合效果不好
+model.add(Dense(200,activation='sigmoid'))#第二层单元设置为100比较合适，过大会导致过拟合，过小拟合效果不好
 model.add(Dense(output,activation='softmax'))#输出结果
 model.compile(optimizer='adam',loss='categorical_crossentropy')#选择adam优化，损失函数选择二元交叉熵准确率会提升一些（大概1%左右吧）
 
-model.fit(train_x,train_y,batch_size=40,epochs=500)#进行训练，迭代20轮
+model.fit(train_x,train_y,batch_size=80,epochs=500)#进行训练，迭代20轮
 
 predict_y=model.predict(test_x)#预测test数据的结果
 sum1,sum2,acc=0,0,0
