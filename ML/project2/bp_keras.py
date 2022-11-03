@@ -38,7 +38,6 @@ for i in label:s.add(i)
 
 #train_img,test_img,train_label,test_label=sklearn.model_selection.train_test_split(img,label,test_size=0.3)
 #数据集不多，暂时设置为全集
-train_img,test_img,train_label,test_label=img,img,label,label
 
 input,hidden,output=len(img[0]),200,len(s)#设置输入层，隐藏层，输出层的神经元个数
 cut_sz=100
@@ -58,20 +57,20 @@ tot_label=tot_label.reshape(-1,1)#维度不对，应该设置为n行1列
 tot_label=np_utils.to_categorical(tot_label)
 
 tot=np.concatenate([tot_img,tot_label],axis=1)#把数据和标签按列拼接到一起
-scaled=mmx.fit_transform(tot)#归一化
+tot=mmx.fit_transform(tot)#归一化
 
-
-train,test=scaled[:,:],scaled[:,:]#把归一化的总数据还原成训练数据和测试数据
-scaled_x,scaled_y=train[:,:input],train[:,input:]#再把训练数据拆分成输入和标签
-# print(scaled_y)
-test_x,test_y=test[:,:input],test[:,input:]
-model.fit(scaled_x,scaled_y,batch_size=50,epochs=500)#进行训练，迭代20轮
+random.shuffle(tot)
+# train,test=tot[:,:],tot[:,:]#把归一化的总数据还原成训练数据和测试数据
+# train_x,train_y=train[:,:input],train[:,input:]#再把训练数据拆分成输入和标签
+#test_x,test_y=test[:,:input],test[:,input:]
+train_x,test_x,train_y,test_y=sklearn.model_selection.train_test_split(tot_img,tot_label,train_size=0.8)
+model.fit(train_x,train_y,batch_size=50,epochs=200)#进行训练，迭代20轮
 
 predict_y=model.predict(test_x)#预测test数据的结果
 sum1,sum2,acc=0,0,0
 for i in range(len(predict_y)):
     maxindex=np.argmax(predict_y[i])#找到最大值所在的索引
-    if(maxindex==test_label[i]):#如果预测结果正确
+    if(test_y[i][maxindex]==1):#如果预测结果正确
         sum1+=1
     #else:
         #show_num(test_img[i])
