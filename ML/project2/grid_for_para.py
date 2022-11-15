@@ -28,9 +28,10 @@ class ANN:
         self.output_num=output_num
         self.b=np.zeros(hidden_num)
         #阈值的初始化
-        self.theta=np.random.rand(output_num)
-        self.gamma=np.random.rand(hidden_num)
-
+        #self.theta=np.random.rand(output_num)
+        #self.gamma=np.random.rand(hidden_num)
+        self.theta=np.zeros(output_num)
+        self.gamma=np.zeros(hidden_num)
         self.hat_y=np.zeros(output_num)
         #权重初始化
         self.v=np.zeros((input_num,hidden_num))
@@ -118,29 +119,35 @@ tot_label=np_utils.to_categorical(tot_label)
 tot=np.concatenate([tot_img,tot_label],axis=1)#把数据和标签按列拼接到一起
 tot=mmx.fit_transform(tot)#不归一化已经100了
 tot_img,tot_label=tot[:,:input],tot[:,input:]#归一化以后的数据和tag
-train_x,test_x,train_y,test_y=sklearn.model_selection.train_test_split(tot_img,tot_label,train_size=0.8)#抽取80%作为训练集
-################使用手工搭建的神经网络##################################
-learning_rate=0.2#确定学习率
-ANN1=ANN(x=tot_img,y=tot_label,learning_rate=0.2,input_num=input,hidden_num=hidden,output_num=output)
-epochs=400
-ANN_res,Acc_res=ANN1,0
-for k in range(epochs):#迭代
-    ANN1.learning_rate = learning_rate * (100) / (100 + k)
-    for j in range(len(train_x)):#遍历所有训练数据
-        ANN1.train_std(train_x[j],train_y[j].reshape(-1,1))#人工神经网络进行训练
-    accuracy=0#计算准确性
-    sum1,sum2=0,0
-    for i in range(len(test_x)):#遍历预测数据
-        #wa_x=[]
-        outputs = ANN1.predict(test_x[i])#得到对应的输出
-        pred_label=numpy.argmax(outputs)#得到输出的值最大的位置，也就是判断结果
-        #print(pred_label,test_label[i])
-        if(test_y[i][pred_label]==1):#如果判断正确
-            sum1+=1
-        sum2+=1
-    if k%10==9:print('epoch:----->',k+1,'使用手工搭建的神经网络的准确率:',sum1/sum2*100,"%")#输出准确性
-    if sum1/sum2>Acc_res:
-        Acc_res,ANN_res=sum1/sum2,ANN1
-print("找到的最佳准确率为:",Acc_res*100,"%")
-
-################使用手工搭建的神经网络##################################
+train_x,test_x,train_y,test_y=sklearn.model_selection.train_test_split(tot_img,tot_label,train_size=0.8,random_state=1)#抽取80%作为训练集
+#尝试网格参数优化
+def grid(learning_rate, hidden):
+    ANN1 = ANN(x=tot_img, y=tot_label, learning_rate=0.2, input_num=input, hidden_num=hidden, output_num=output)
+    epochs = 400
+    ANN_res, Acc_res = ANN1, 0
+    for k in range(epochs):  # 迭代
+        ANN1.learning_rate = learning_rate * (100) / (100 + k)
+        for j in range(len(train_x)):  # 遍历所有训练数据
+            ANN1.train_std(train_x[j], train_y[j].reshape(-1, 1))  # 人工神经网络进行训练
+        accuracy = 0  # 计算准确性
+        sum1, sum2 = 0, 0
+        for i in range(len(test_x)):  # 遍历预测数据
+            # wa_x=[]
+            outputs = ANN1.predict(test_x[i])  # 得到对应的输出
+            pred_label = numpy.argmax(outputs)  # 得到输出的值最大的位置，也就是判断结果
+            # print(pred_label,test_label[i])
+            if (test_y[i][pred_label] == 1):  # 如果判断正确
+                sum1 += 1
+            sum2 += 1
+        #if k % 10 == 9: print('epoch:----->', k + 1, '使用手工搭建的神经网络的准确率:', sum1 / sum2 * 100, "%")  # 输出准确性
+        if sum1 / sum2 > Acc_res:
+            Acc_res, ANN_res = sum1 / sum2, ANN1
+    print("找到的最佳准确率为:", Acc_res * 100, "%")
+    return Acc_res
+nowbest,h1,lr=0,0,0
+for h in range(10,300):
+    for learning_rate in range(1,100):
+        res=grid(learning_rate/100,h)
+        if(res>nowbest):
+            nowbest,nowbest,h1,lr=res,h,learning_rate/100
+print(h1,lr)

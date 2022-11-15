@@ -1,0 +1,97 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int N=1e5+3;
+#define feature f
+#define rep(i,a,b) for(int i=a;i<=b;i++)
+struct sample{
+    vector<string> feature;
+}samp[N];
+struct tree_node{
+    vector<int> sp,son;
+    vector<string> tag;
+    double ent=0;
+    string type="非叶子节点";
+}nd[N];
+int res[N],cnt;
+double get_ant(vector<int> sp){
+    int posi=0;
+    for(auto& i:sp)if(res[i])posi++;
+    double p1=(double)(posi)/sp.size(),p2=1-p1;
+    double res=(p1>0?-p1*log(p1)/log(2):0)-(p2>0?p2*log(p2)/log(2):0);
+    //cout<<res<<endl;
+    return res;
+}
+double gain(int id,int fea){
+    double gain=nd[id].ent;
+    vector<int> sp=nd[id].sp;
+    map<string,int> mp;
+    for(auto& i:sp)mp[samp[i].f[fea]]++;
+    for(auto& [key,cnt]:mp){
+        vector<int> s;
+        for(auto& k:sp)if(samp[k].f[fea]==key)
+            s.push_back(k);
+        double ent= get_ant(s);
+        //cout<<ent<<endl;
+        gain-=ent*(s.size())/sp.size();
+    }
+    return gain;
+}
+int find_best(int id){
+    double max1=0;
+    int idx=0;
+    rep(i,0,5){
+        double g=gain(id,i);
+        if(g>max1)max1=g,idx=i;
+    }
+    return idx;
+}
+void dfs(int id){
+    nd[id].ent=get_ant(nd[id].sp);
+    int best=find_best(id);
+    if(gain(id,best)==0){
+        if(res[nd[id].sp[0]])nd[id].type="好瓜";
+        else nd[id].type="坏瓜";return ;
+    }
+    map<string,vector<int> > mp;
+    for(auto& i:nd[id].sp)mp[samp[i].f[best]].emplace_back(i);
+    if(mp.size()==1){
+        int pos=0,neg=0;
+        for(auto& i:nd[id].sp)if(res[i])pos++;else neg++;
+        if(pos>=neg)nd[id].type="好瓜";
+        else nd[id].type="坏瓜";return ;
+    }
+    for( auto& [s,v]:mp){
+        nd[id].son.emplace_back(++cnt);
+        nd[cnt].sp=v;nd[cnt].ent=get_ant(nd[cnt].sp);
+        nd[cnt].tag=nd[id].tag;nd[cnt].tag.emplace_back(s);
+    }
+    for(auto& i:nd[id].son){
+        dfs(i);
+    }
+}
+int main(){
+    vector<string> v;
+    samp[1].f={"青绿","蜷缩","浊响","清晰","凹陷","硬滑"};
+    samp[2].f={"乌黑","蜷缩","沉闷","清晰","凹陷","硬滑"};
+    samp[3].f={"乌黑","蜷缩","浊响","清晰","凹陷","硬滑"};
+    samp[4].f={"青绿","蜷缩","沉闷","清晰","凹陷","硬滑"};
+    samp[5].f={"浅白","蜷缩","浊响","清晰","凹陷","硬滑"};
+    samp[6].f={"青绿","稍蜷","浊响","清晰","稍凹","软粘"};
+    samp[7].f={"乌黑","稍蜷","浊响","稍糊","稍凹","软粘"};
+    samp[8].f={"乌黑","稍蜷","浊响","清晰","稍凹","硬滑"};
+    rep(i,1,8)res[i]=1;
+    samp[9].f={"乌黑","稍蜷","沉闷","稍糊","稍凹","硬滑"};
+    samp[10].f={"青绿","硬挺","清脆","清晰","平坦","软粘"};
+    samp[11].f={"浅白","硬挺","清脆","模糊","平坦","硬滑"};
+    samp[12].f={"浅白","蜷缩","浊响","模糊","平坦","软粘"};
+    samp[13].f={"青绿","稍蜷","浊响","稍糊","凹陷","硬滑"};
+    samp[14].f={"浅白","稍蜷","沉闷","稍糊","凹陷","硬滑"};
+    samp[15].f={"乌黑","稍蜷","浊响","清晰","稍凹","软粘"};
+    samp[16].f={"浅白","蜷缩","浊响","模糊","平坦","硬滑"};
+    samp[17].f={"青绿","蜷缩","沉闷","稍糊","稍凹","硬滑"};
+    vector<int> sp;
+    rep(i,1,17)sp.push_back(i);
+    nd[1].sp=sp;nd[1].ent=get_ant(nd[1].sp);
+    cnt=1;
+    dfs(1);
+}
