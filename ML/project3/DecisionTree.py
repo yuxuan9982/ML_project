@@ -1,3 +1,4 @@
+import copy
 import csv
 from math import log, log2
 from random import shuffle
@@ -122,7 +123,7 @@ def cut(root,Tree,fa,fa_key,name,test,label):
     index=name.index(feature)
     for key in dic2.keys():
         if (type(dic2[key]).__name__ == 'dict'):
-            Tree[feature][key]=cut(root,dic2[key],Tree,key,name,test,label)
+           cut(root,dic2[key],Tree,key,name,test,label)
     Tree2 = Tree.copy()
     best_acc, best_label = get_acc(root, name, test), ''
     base_acc = best_acc
@@ -137,7 +138,6 @@ def cut(root,Tree,fa,fa_key,name,test,label):
     else:
         fa[list(fa.keys())[0]][fa_key]=Tree2
     #print(best_acc)
-    return Tree
 def predict(Tree,name,test):
     feature=list(Tree.keys())[0]
     dic2= Tree[feature]
@@ -222,11 +222,11 @@ def read_wine():
     return data, label
 
 
-data,label=read_iris()
+data,label=read_wine()
 #print(data)
 #print(label)
 ###divide
-#shuffle(data)
+shuffle(data)
 train,test=[],[]
 for i in range(len(data)):
     if(i<len(data)*0.8):
@@ -236,7 +236,7 @@ for i in range(len(data)):
 ###devide
 lab2=label[:]
 Tree = dfs(train,lab2)
-print(Tree)
-Cut_Tree=Tree.copy()
+print('剪枝前：',get_acc(Tree,label,test) )
+Cut_Tree=copy.deepcopy(Tree)
 cut(Cut_Tree,Cut_Tree,0,0,label,test,set([sample[-1] for sample in test]))
-get_acc(Tree,label,test)
+print('剪枝后：',get_acc(Cut_Tree,label,test) )
