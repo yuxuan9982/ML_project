@@ -178,10 +178,26 @@ def read_iris():
     return data,label
     # for i in lst:print(i)
 
+def read_wine():
+    path= "E:/desktop/3rdgrade-1/机器学习/winequality_data.xlsx"
+    book = xlrd.open_workbook(path)
+    sheet1 = book.sheets()[0]
+    row, col = sheet1.nrows, sheet1.ncols
+    # print(row, col)
+    data, label = [], []
+    for i in range(1, row):
+        tmp = []
+        for j in range(col):
+            tmp.append(sheet1.cell(i, j).value)
+        data.append(tmp)
+    tmp = []
+    for j in range(col): tmp.append(sheet1.cell(0, j).value)
+    label = tmp
+    #print(data);print(label)
+    return data, label
 
 
-
-data,label=read_iris()
+data,label=read_wine()
 #print(data)
 #print(label)
 ###divide
