@@ -116,13 +116,30 @@ def dfs(data,name):
         Tree[best_label][">="+str(best2_val)]=dfs(n_data2,n_name2)
         return Tree
 
-
-
+def cut(root,Tree,fa,fa_key,name,test,label):
+    feature=list(Tree.keys())[0]
+    dic2 = Tree[feature]
+    index=name.index(feature)
+    for key in dic2.keys():
+        if (type(dic2[key]).__name__ == 'dict'):
+            Tree[feature][key]=cut(root,dic2[key],Tree,key,name,test,label)
+    Tree2 = Tree.copy()
+    best_acc, best_label = get_acc(root, name, test), ''
+    base_acc = best_acc
+    if(Tree==root):return
+    for i in label:
+        fa[list(fa.keys())[0]][fa_key]=i
+        now_acc = get_acc(root, name, test)
+        if (now_acc > best_acc):
+            best_acc, best_label = now_acc, i
+    if (best_acc > base_acc):
+        fa[list(fa.keys())[0]][fa_key]=best_label
+    else:
+        fa[list(fa.keys())[0]][fa_key]=Tree2
+    #print(best_acc)
+    return Tree
 def predict(Tree,name,test):
-    feature,key= 0,Tree.keys()
-    for i in key:
-        feature=i
-        break
+    feature=list(Tree.keys())[0]
     dic2= Tree[feature]
     #print(dic2)
     index= name.index(feature)
@@ -143,6 +160,14 @@ def predict(Tree,name,test):
                 return predict(dic2[key],name,test)
             else:
                 return dic2[key]
+def get_acc(Tree,name,test):
+    cnt = 0
+    for d in test:
+        if (predict(Tree, name, d[:-1]) == d[-1]):
+            cnt += 1
+    #print('accuracy:', cnt / len(test))
+    return cnt/len(test)
+
 def get_water():
     path = "E:/desktop/3rdgrade-1/机器学习/water2.xlsx"
     book = xlrd.open_workbook(path)
@@ -197,11 +222,11 @@ def read_wine():
     return data, label
 
 
-data,label=read_wine()
+data,label=read_iris()
 #print(data)
 #print(label)
 ###divide
-shuffle(data)
+#shuffle(data)
 train,test=[],[]
 for i in range(len(data)):
     if(i<len(data)*0.8):
@@ -212,8 +237,6 @@ for i in range(len(data)):
 lab2=label[:]
 Tree = dfs(train,lab2)
 print(Tree)
-cnt=0
-for d in test:
-    if (predict(Tree,label,d[:-1])==d[-1]):
-        cnt+=1
-print('accuracy:',cnt/len(test))
+Cut_Tree=Tree.copy()
+cut(Cut_Tree,Cut_Tree,0,0,label,test,set([sample[-1] for sample in test]))
+get_acc(Tree,label,test)
